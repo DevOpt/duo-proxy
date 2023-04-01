@@ -1,0 +1,11 @@
+{
+  "name": "my-awesome-package",
+  "version": "1.0.0",
+  "description": "An awesome npm package.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node duo/server.js"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
