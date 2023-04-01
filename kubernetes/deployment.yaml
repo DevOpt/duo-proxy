@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pingfederate
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pingfederate
+  template:
+    metadata:
+      labels:
+        app: pingfederate
+    spec:
+      containers:
+        - name: pingfederate
+          image: asherif0/pingfederate:1.3.0
+          ports:
+            - containerPort: 3000
+            - containerPort: 80
+#        - name: nginx
+#          image: nginx:latest
+#          ports:
+#            - containerPort: 3000
+#            - containerPort: 80
+#          volumeMounts:
+#            - name: nginx-conf
+#              mountPath: /etc/nginx/conf.d
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    server {
+      listen 80;
+
+      location / {
+        proxy_set_header X-Duo-Header "Duo Auth Header";
+        proxy_pass http://duoserver:3000;
+      }
+    }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pingfederate-service
+spec:
+  selector:
+    app: pingfederate
+  ports:
+    - name: ping
+      port: 3000
+      targetPort: 3000
+#    - name: http
+#      port: 80
+#      targetPort: 3000
+  type: ClusterIP
+#---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: duo
+#spec:
+#  selector:
+#    app: nginx
+#  ports:
+#    - name: http
+#      port: 80
+#      targetPort: 3000
+#    - name: s
+#      port: 3000
+#      targetPort: 80
