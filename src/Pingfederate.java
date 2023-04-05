@@ -11,8 +11,10 @@ public class Pingfederate {
 
     }
     public void run() throws IOException {
-        System.out.println("Version 1.4.0");
-        URL url = new URL("http://duoserver:3000/");
+        System.out.println("Version 2.1.0");
+        String host = System.getenv("HOST");
+        String port = System.getenv("PORT");
+        URL url = new URL(String.format("%s:%s", host, port));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
         con.setRequestProperty("Custom-Header", "Nginx");
