@@ -14,19 +14,19 @@ spec:
     spec:
       containers:
         - name: pingfederate
-          image: asherif0/pingfederate:2.1.0
+          image: asherif0/pingfederate:2.2.0
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           env:
             - name: HOST
-              value: "http://localhost"
+              value: "http://localhost/messages/latest"
             - name: PORT
-              value: "8080"
+              value: "80"
         - name: nginx
           image: nginx:latest
 #          command: ["sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled"]
           ports:
-            - containerPort: 8080
+            - containerPort: 80
           volumeMounts:
             - name: nginx-conf
               mountPath: /etc/nginx/nginx.conf
@@ -72,11 +72,22 @@ data:
       #gzip  on;
 
       server {
-        listen 8080;
+        listen 80;
         #server_name nginx-service.default.svc.cluster.local;
+
         location / {
-          proxy_set_header X-Duo-Header "Duo Auth Header";
-          proxy_pass http://thestreamingservice.site/;
+          proxy_set_header X-Duo-Header "First path starting";
+          proxy_pass http://thestreamingservice.site/ping;
+        }
+
+        location /ping {
+          proxy_set_header X-Duo-Header "I pinged duo server";
+          proxy_pass http://thestreamingservice.site/ping;
+        }
+
+        location /messages/latest {
+          proxy_set_header X-Duo-Header "I asked duo server for latest message";
+          proxy_pass http://thestreamingservice.site/messages/latest;
         }
       }
     }
